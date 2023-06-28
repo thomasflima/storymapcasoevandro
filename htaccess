@@ -1,0 +1,13 @@
+<IfModule mod_rewrite.c>
+
+RewriteEngine On
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+#RewriteRule ^(.*)$ index.php?params=$1 [NC, QSA]
+
+#Caso não seja nenhuma das opções acima
+RewriteRule ^([/A-Za-z0-9_\-]+)$ index.php?p=$1 [QSA]
+
+</IfModule>
