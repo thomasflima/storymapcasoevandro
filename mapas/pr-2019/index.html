@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <!-- Meta tags Obrigatórias -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+            <!-- Fontes -->
+    <style type="text/css">
+      @font-face{
+          font-family:"PTMono";
+          src:url("fonts/PTMono-Regular.ttf");
+        }
+      @font-face{
+          font-family:"PTMono-Bold";
+          src:url("fonts/pt-mono.bold.ttf");
+        }
+      </style>
+    <!-- HTML5Shiv -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Estilo customizado -->
+    <link rel="stylesheet" type="text/css" href="css/estilo.css">
+        <style>
+        #map {
+            width: 100%;
+            height: 100vh;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+    <title>PR 2019</title>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="./data/line.js"></script>
+    <script src="./data/point.js"></script>
+    <script src="./data/polygon.js"></script>
+    <script src="./data/nepaldata.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <script src="data/distrito_pr.js"></script>
+    <script src="data/taxas.js"></script>
+    <script src="data/densidade.js"></script>
+    <script>
+
+
+        var map = L.map('map', {
+         center: [-24.5, -51],
+         zoom: 7,
+         layers: []
+            });
+
+       map.attributionControl.setPrefix('<a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://www.mapbox.com/" target="blank">Mapbox</a> '
+        );
+        var mapbox = L.tileLayer('https://api.mapbox.com/styles/v1/thomaslima22/cl0cv2ac1000p14p0r2degx7p/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoidGhvbWFzbGltYTIyIiwiYSI6ImNrcmNhcWYzOTUxNXUybnJ1MTYyemk2NnMifQ.iNn2WyeT4PxcDcELUieNaQ', {
+        });
+        mapbox.addTo(map);
+
+
+        function getColor(d) {
+    return d >= 3.88  ? '#990d35' :
+           d >= 2.46  ? '#ad415b' :
+           d >= 1.55  ? '#c17480' :
+           d >= 0.74  ? '#d4a8a5' :
+           d >= 0     ? '#e8dbcb' :
+                        '#e8dbcb';
+}
+
+
+function style(feature) {
+    return {
+        fillColor: getColor(feature.properties.Taxa_2019),
+        weight: 1,
+        opacity: 1,
+        color: '#787878',
+        dashArray: 'none',
+        fillOpacity: 0.8,
+        interactive:true
+    };
+}
+
+
+function highlightFeature(e) {
+    var layer = e.target;
+
+    layer.setStyle({
+        weight: 3,
+        fillColor:'#ce3963',
+        color: 'blue',
+        dashArray: 'none',
+        fillOpacity: 0
+    });
+    layer.bringToFront();
+    info.update(layer.feature.properties);
+}
+
+function resetHighlight(e) {
+    geojson.resetStyle(e.target);
+    distrito.bringToFront();
+    info.update();
+}
+
+
+function zoomToFeature(e) {
+    map.fitBounds(e.target.getBounds());
+}
+
+function onEachFeature(feature, layer) {
+    layer.on({
+        mouseover: highlightFeature,
+        mouseout: resetHighlight,
+        click: zoomToFeature
+    });
+}
+
+
+function getColor2(d) {
+    return d >= 251.2 ? '#bd0026' :
+           d >= 67.728  ? '#f03b20' :
+           d >= 37.875   ? '#fd8d3c' :
+           d >= 26.012   ? '#fecc5c' :
+           d >=16.926     ? '#ffffb2':
+                           '#ffffb2';
+}
+
+
+function style2(feature) {
+    return {
+        fillColor: getColor2(feature.properties.densidade),
+        weight: 1.5,
+        opacity: 1,
+        color: '#585858',
+        dashArray: 'none',
+        fillOpacity: 1,
+        interactive:false
+    };
+}
+
+
+
+var x_densidade = L.geoJson(densidade, {style: style2});
+
+L.geoJson(taxas, {style: style}).addTo(map);
+map.addLayer(geojson = L.geoJson(taxas, {
+    style: style,
+    onEachFeature: onEachFeature,
+}));
+
+
+
+
+var info = L.control();
+
+info.onAdd = function (map) {
+    this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+    this.update();
+    return this._div;
+};
+
+// method that we will use to update the control based on feature properties passed
+info.update = function (props) {
+    this._div.innerHTML = '<h5>Pessoas desaparecidas no estado do Paraná (2019)</h5>' +  (props ?
+        '<b>' + props.NM_MUNICIP + '</b><br />' + ' Distrito:'+ '<b>' + props.DISTRITO + '</b><br />' + 'A taxa do distrito é de ' + props.Taxa_2019 + ' pessoas a cada 100 mil habitantes'
+        : 'Clique sobre um município para mais informações');
+};
+
+info.addTo(map);
+
+var legend = L.control({position: 'topright'});
+
+legend.onAdd = function (map) {
+
+    var div = L.DomUtil.create('div', 'info legend'),
+        grades = [0,0.74,1.55,2.46,3.88],
+        intm=    [0,0.75,1.56,2.47,3.88],
+        labels = ['<strong>Taxa de Desaparecidos </strong>'],
+        from, to;
+
+    for (var i = 0; i < grades.length; i++) {
+        from = grades [i];
+        to = grades[i+1];
+        lim = intm [i];
+
+    labels.push(
+         '<i style= "opacity: 1; background:' + getColor(from) + '"></i> ' +
+        lim + (to ? '&ndash;' + to : '+'));
+        }
+        div.innerHTML = labels.join('<br>');
+        return div;
+
+
+        };
+legend.addTo(map);
+
+
+var baseMaps = {'Densidade Demográfica hab/km²<br /><table><tr><td style="text-align: center;"><img src="legend/1.png" /></td><td>16,9 - 26</td></tr><tr><td style="text-align: center;"><img src="legend/2.png" /></td><td>26,1 - 37,9</td></tr><tr><td style="text-align: center;"><img src="legend/3.png" /></td><td>38 - 67,7</td></tr><tr><td style="text-align: center;"><img src="legend/4.png" /></td><td>67,8 - 251,1</td></tr><tr><td style="text-align: center;"><img src="legend/5.png" /></td><td>251,2 - 4513,9</td></tr></table>': x_densidade,
+    "Taxa de Desaparecidos": geojson
+    };
+
+map.addLayer(distrito= L.geoJson(distrito,{
+    interactive:false,
+    fillColor: 'none',
+        weight: 1.5,
+        opacity: 1,
+        color: '#585858',
+        dashArray: 'none'
+     }));
+
+
+distrito.addTo(map);
+
+
+var overlayMaps = {
+    "Limites do Distrito": distrito,
+    
+    
+};
+
+
+
+L.control.layers(baseMaps, overlayMaps, {position: 'topleft'}).addTo(map);
+
+
+
+</script>
+        </script>
+
+
+
+    <!-- JavaScript (Opcional) -->
+    <!-- jQuery primeiro, depois Popper.js, depois Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+  </body>
+</html>

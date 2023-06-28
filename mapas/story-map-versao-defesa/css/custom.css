@@ -1,0 +1,86 @@
+.vco-text-content {
+    font-family: "PTMono";
+    text-shadow: none;
+}
+
+.vco-headline{
+      font-family: "PTMono-Bold";
+      text-transform: uppercase;
+      text-shadow: none;
+}
+
+.vco-slide-calltoaction-button-text{
+    font-family: "PTMono";
+    text-transform: uppercase;
+    text-shadow: none;
+}
+
+.vco-menubar-button{
+    background:'white';
+    font-family:PTMono;
+    color: #990D35;
+    text-shadow: none;
+}
+
+.vco-menubar-button{
+    font-family: "PTMono";
+    text-shadow: none;
+}
+
+.vco-credit{
+    font-family: "PTMono";
+    text-shadow: none;
+}
+
+.vco-menubar-button:hover {
+    background:#990D35;
+    font-family:PTMono;
+    color:'white' ;
+    text-shadow: none;
+}
+
+.vco-map .vco-mapmarker-active{
+    color: #990D35;
+}
+
+.vco-text-content{
+    font-size: 14px;
+}
+
+.vco-headline {
+    font-size: 30px;
+    font-weight: 500px;
+}
+.vco-headline-title
+{
+    font-size: 30px;
+    font-weight: 500px;
+}
+
+.vco-storymap h2.vco-headline-title {
+    font-size: 28px;
+    line-height: 28px;
+}
+
+
+.vco-storymap h1, .vco-storymap h2, .vco-storymap h3 {
+
+    font-size: 28px;
+    line-height: 28px;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #212529;
+  border-radius: 50px;
+}
